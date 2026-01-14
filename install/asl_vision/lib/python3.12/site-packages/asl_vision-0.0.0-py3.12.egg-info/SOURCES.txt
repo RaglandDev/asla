@@ -10,6 +10,7 @@ setup.py
 ../../build/asl_vision/asl_vision.egg-info/zip-safe
 asl_vision/__init__.py
 asl_vision/camera_node.py
+asl_vision/vision_node.py
 resource/asl_vision
 test/test_copyright.py
 test/test_flake8.py

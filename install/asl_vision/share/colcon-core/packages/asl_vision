@@ -1,1 +1,1 @@
-rclpy:sensor_msgs
+mediapipe:rclpy:sensor_msgs

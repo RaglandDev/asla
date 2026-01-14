@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'mediapipe'],
     zip_safe=True,
     maintainer='alex',
     maintainer_email='alexragland2003@gmail.com',
@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'camera_node = asl_vision.camera_node:main',
+            'vision_node = asl_vision.vision_node:main',
         ],
     },
 )
