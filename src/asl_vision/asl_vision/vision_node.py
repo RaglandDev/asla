@@ -77,45 +77,75 @@ class ASLVisionNode(Node):
         return math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2)
 
     def classify_gesture(self, landmarks):
-        tips = [8, 12, 16, 20]
-        pips = [6, 10, 14, 18]
-        up = []
-        for t, p in zip(tips, pips):
-            up.append(landmarks[t].y < landmarks[p].y)
-        i_up, m_up, r_up, p_up = up
+        WRIST = landmarks[0]
+        THUMB_CMC, THUMB_MCP, THUMB_IP, THUMB_TIP = landmarks[1], landmarks[2], landmarks[3], landmarks[4]
+        INDEX_MCP, INDEX_PIP, INDEX_DIP, INDEX_TIP = landmarks[5], landmarks[6], landmarks[7], landmarks[8]
+        MIDDLE_MCP, MIDDLE_PIP, MIDDLE_DIP, MIDDLE_TIP = landmarks[9], landmarks[10], landmarks[11], landmarks[12]
+        RING_MCP, RING_PIP, RING_DIP, RING_TIP = landmarks[13], landmarks[14], landmarks[15], landmarks[16]
+        PINKY_MCP, PINKY_PIP, PINKY_DIP, PINKY_TIP = landmarks[17], landmarks[18], landmarks[19], landmarks[20]
 
-        thumb_out = landmarks[4].x > landmarks[5].x
+        # is each finger pointing up?
+        i = INDEX_TIP.y < INDEX_PIP.y
+        m = MIDDLE_TIP.y < MIDDLE_PIP.y
+        r = RING_TIP.y < RING_PIP.y
+        p = PINKY_TIP.y < PINKY_PIP.y
 
-        # index and middle crossed
-        fingers_crossed = landmarks[8].x < landmarks[12].x 
+        # distance helpers
+        dist_thumb_index = self.get_dist(THUMB_TIP, INDEX_TIP)
+        dist_thumb_middle = self.get_dist(THUMB_TIP, MIDDLE_PIP)
 
-        # thumb is touching fingers
-        thumb_tip = landmarks[4]
-        index_tip = landmarks[8]
-        dist_thumb_index = self.get_dist(thumb_tip, index_tip)
+        # finger signs
+        if i and m and r and p:
+            return "B"
+        if i and m and r and not p:
+            return "W"
 
-        # (thumb, index, middle, ring, pinky)
-        state = (thumb_out, *up)
-        asl_map = {
-                (False, True, False, False, False): "D",
-                (True, True, False, False, False): "L",
-                (False, True, True, False, False): "V",
-                (False, True, True, True, False): "W",
-                (False, False, False, False, True): "I",
-                (True, False, False, False, True): "Y",
-                (False, True, True, True, True): "B",
-                (False, False, False, False, False): "S/E/M/N", # fist
-                (False, False, True, True, True): "F",
-                (True, True, True, False, False): "K",
-                (False, True, True, False, False): "R" if fingers_crossed else "V",
-                (True, False, False, False, False): "A",
-            }
+        if i and m and not r and not p:
+            if INDEX_TIP.x > MIDDLE_TIP.x:
+                return "R"
+            if dist_thumb_middle < 0.06: # thumb touches middle joint
+                return "K"
+            return "V"
 
-        DISTANCE_THRESHOLD = 0.05
-        if all(landmarks[t].y > landmarks[p].y for t, p in zip(tips, pips)) and dist_thumb_index < DISTANCE_THRESHOLD:
-            return "O"
+        if i and not m and not r and not p:
+            if THUMB_TIP.x < INDEX_MCP.x - 0.03: # thumb out to side
+                return "L"
+            return "D"
 
-        return asl_map.get(state, "None")
+        if p and not i and not m and not r:
+            if THUMB_TIP.x < INDEX_MCP.x - 0.03:
+                return "Y"
+            return "I"
+
+        if m and r and p and not i:
+            if dist_thumb_index < 0.05: # thumb index touching
+                return "F"
+
+
+        # fist signs
+        if not any([i, m, r, p]):
+            if THUMB_TIP.y > INDEX_PIP.y:
+                return "E"
+
+            if THUMB_TIP.x < INDEX_MCP.x - 0.03:
+                return "A"
+
+            # goalpost logic, midpoints between knuckles
+            mid_IM = (INDEX_MCP.x + MIDDLE_MCP.x) / 2
+            mid_MR = (MIDDLE_MCP.x + RING_MCP.x) / 2
+            mid_RP = (RING_MCP.x + PINKY_MCP.x) / 2
+
+            tx = THUMB_TIP.x
+            if tx < mid_IM:
+                return "S"
+            elif tx < mid_MR:
+                return "T"
+            elif tx < mid_RP:
+                return "N"
+            else:
+                return "M"
+
+        return "Unable to classify gesture"
 
 
 def main(args=None):
