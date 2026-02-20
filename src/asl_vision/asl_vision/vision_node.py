@@ -102,6 +102,10 @@ class ASLVisionNode(Node):
             if THUMB_TIP.x > THUMB_IP.x > THUMB_MCP.x:
                 return "C"
 
+        if i and not m and not r and not p:
+            if self.get_dist(THUMB_TIP, MIDDLE_TIP) < 0.05:
+                return "D"
+
 
         return "Unable to classify gesture"
 
