@@ -93,7 +93,8 @@ class ASLVisionNode(Node):
         if not any([i, m, r, p]):
             if THUMB_CMC.y > THUMB_MCP.y > THUMB_IP.y > THUMB_TIP.y:
                 if self.get_dist(THUMB_TIP, PINKY_TIP) > 0.1:
-                    return "A"
+                    if abs(INDEX_TIP.x - INDEX_PIP.x) < 0.08: # vertically straight
+                        return "A"
 
         if i and m and r and p:
             if THUMB_MCP.x > THUMB_IP.x > THUMB_TIP.x:
@@ -101,7 +102,8 @@ class ASLVisionNode(Node):
 
         if INDEX_TIP.x > INDEX_MCP.x and MIDDLE_TIP.x > MIDDLE_MCP.x and RING_TIP.x > RING_MCP.x and PINKY_TIP.x > PINKY_MCP.x:
             if THUMB_TIP.x > THUMB_IP.x > THUMB_MCP.x:
-                return "C"
+                if self.get_dist(PINKY_TIP, RING_TIP) < 0.05 and self.get_dist(RING_TIP, MIDDLE_TIP) < 0.05 and self.get_dist(MIDDLE_TIP, INDEX_TIP) < 0.05:
+                    return "C"
 
         if i and not m and not r and not p:
             if self.get_dist(THUMB_TIP, MIDDLE_TIP) < 0.08:
@@ -114,6 +116,13 @@ class ASLVisionNode(Node):
         if not i and m and r and p:
             if self.get_dist(THUMB_TIP, INDEX_TIP) < 0.08:
                 return "F"
+
+        if not i and not m and not r and not p:
+            if INDEX_TIP.x > INDEX_DIP.x > INDEX_PIP.x > INDEX_MCP.x:
+                if THUMB_TIP.x > THUMB_IP.x > THUMB_MCP.x > THUMB_CMC.x:
+                    if abs(INDEX_TIP.y - INDEX_PIP.y) < 0.08: # horizontally straight
+                        if abs(THUMB_TIP.y - THUMB_MCP.y) < 0.08:
+                            return "G"
 
 
         return "Unable to classify gesture"
