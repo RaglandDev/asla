@@ -124,6 +124,11 @@ class ASLVisionNode(Node):
                         if abs(THUMB_TIP.y - THUMB_MCP.y) < 0.08:
                             return "G"
 
+        if INDEX_TIP.x > INDEX_DIP.x > INDEX_PIP.x > INDEX_MCP.x:
+            if MIDDLE_TIP.x > MIDDLE_DIP.x > MIDDLE_PIP.x > MIDDLE_MCP.x:
+                return "H"
+                        
+
 
         return "Unable to classify gesture"
 
