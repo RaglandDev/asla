@@ -133,6 +133,12 @@ class ASLVisionNode(Node):
             if PINKY_TIP.y < THUMB_TIP.y < MIDDLE_TIP.y < RING_TIP.y:
                 return "I"
 
+        # j
+
+        if i and m and not p and not r:
+            if MIDDLE_PIP.x < THUMB_TIP.x < INDEX_PIP.x:
+                return "K"
+
 
         return "Unable to classify gesture"
 
