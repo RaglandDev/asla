@@ -92,7 +92,7 @@ class ASLVisionNode(Node):
 
         if not any([i, m, r, p]):
             if THUMB_CMC.y > THUMB_MCP.y > THUMB_IP.y > THUMB_TIP.y:
-                if self.get_dist(THUMB_TIP, PINKY_TIP) > 0.1:
+                if self.get_dist(THUMB_TIP, PINKY_TIP) > 0.3:
                     if abs(INDEX_TIP.x - INDEX_PIP.x) < 0.08: # vertically straight
                         return "A"
 
@@ -127,7 +127,8 @@ class ASLVisionNode(Node):
 
         if INDEX_TIP.x > INDEX_DIP.x > INDEX_PIP.x > INDEX_MCP.x:
             if MIDDLE_TIP.x > MIDDLE_DIP.x > MIDDLE_PIP.x > MIDDLE_MCP.x:
-                return "H"
+                if self.get_dist(THUMB_TIP, MIDDLE_TIP) > 0.2:
+                    return "H"
                         
         if p and not i and not m and not r:
             if PINKY_TIP.y < THUMB_TIP.y < MIDDLE_TIP.y < RING_TIP.y:
@@ -143,6 +144,11 @@ class ASLVisionNode(Node):
             if INDEX_TIP.y < INDEX_DIP.y:
                 return "L"
 
+        if INDEX_TIP.y > INDEX_DIP.y and MIDDLE_TIP.y > MIDDLE_DIP.y and RING_TIP.y > RING_DIP.y:
+            if THUMB_MCP.x > THUMB_IP.x > THUMB_TIP.x:
+                if self.get_dist(PINKY_PIP, THUMB_TIP) < 0.2:
+                    if self.get_dist(MIDDLE_PIP, THUMB_TIP) < 0.2:
+                        return "M"
 
         return "Unable to classify gesture"
 
